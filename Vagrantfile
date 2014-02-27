@@ -16,6 +16,9 @@ _bento_ubuntu1204 = {
 }
 
 vms = {
+    "agent-minimal-centos65"    => _bento_centos65,
+    "agent-minimal-ubuntu1004"  => _bento_ubuntu1004,
+    "agent-minimal-ubuntu1204"  => _bento_ubuntu1204,
     "agent-zabbix-centos65"     => _bento_centos65,
     "agent-zabbix-ubuntu1004"   => _bento_ubuntu1004,
     "agent-zabbix-ubuntu1204"   => _bento_ubuntu1204,
