@@ -1,5 +1,5 @@
 #
-# See howto.txt for instructions.
+# Check that pd-zabbix enqueues events.
 #
 # Copyright (c) 2013-2014, PagerDuty, Inc. <info@pagerduty.com>
 # All rights reserved.
@@ -29,45 +29,55 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
-set -e  # fail on errors
+. $(dirname $0)/util.sh
 
-# params
-case "$1" in
-  deb|rpm)
-        ;;
-  *)
-        echo "Usage: $0 {deb|rpm}"
-        exit 2
-esac
+set -e
+set -x
 
-echo = BUILD TYPE: $1
+# stop pdagent
+stop_agent
 
-# ensure we're in the build directory
-cd $(dirname "$0")
+# zabbix command line must enqueue correctly
+test_zabbix_trigger() {
 
-echo = cleaning build directories
-rm -fr data target
-mkdir data target
+  # clear outqueue
+  test $(ls $OUTQUEUE_DIR | wc -l) -eq 0 || sudo rm -r $OUTQUEUE_DIR/*
 
+  pd-zabbix DUMMY_SERVICE_KEY trigger "name:Zabbix server has just been restarted
+id:13502
+status:PROBLEM
+hostname:Zabbix server
+ip:127.0.0.1
+value:1
+event_id:70
+severity:High"
 
-echo = /usr/share/pdagent-integrations/bin
-mkdir -p data/usr/share/pdagent-integrations/bin
-cp ../bin/pd-zabbix data/usr/share/pdagent-integrations/bin
+  test $(ls $OUTQUEUE_DIR | wc -l) -eq 1
 
-echo = FPM!
-_FPM_DEPENDS="--depends pdagent"
+  diff -q $OUTQUEUE_DIR/pdq_*.txt $(dirname $0)/test_10_zabbix.pdq1.txt
 
-cd target
-fpm -s dir \
-    -t $1 \
-    --name "pdagent-integrations" \
-    --version "0.1" \
-    --architecture all \
-    $_FPM_DEPENDS \
-    --$1-user root \
-    --$1-group root \
-    -C ../data \
-    usr
+}
 
-exit 0
+test_zabbix_resolve() {
 
+  # clear outqueue
+  test $(ls $OUTQUEUE_DIR | wc -l) -eq 0 || sudo rm -r $OUTQUEUE_DIR/*
+
+  pd-zabbix DUMMY_SERVICE_KEY resolve "name:Zabbix server has just been restarted
+id:13502
+status:OK
+hostname:Zabbix server
+ip:127.0.0.1
+value:0
+event_id:126
+severity:High"
+
+  test $(ls $OUTQUEUE_DIR | wc -l) -eq 1
+  test $(ls $OUTQUEUE_DIR/pdq_* | wc -l) -eq 1
+
+  diff -q $OUTQUEUE_DIR/pdq_*.txt $(dirname $0)/test_10_zabbix.pdq2.txt
+
+}
+
+test_zabbix_trigger
+test_zabbix_resolve

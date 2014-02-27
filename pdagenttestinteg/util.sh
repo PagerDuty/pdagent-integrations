@@ -1,6 +1,4 @@
 #
-# See howto.txt for instructions.
-#
 # Copyright (c) 2013-2014, PagerDuty, Inc. <info@pagerduty.com>
 # All rights reserved.
 #
@@ -29,45 +27,49 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
-set -e  # fail on errors
+PDAGENT_VERSION=0.6
+PDAGENT_INTEGRATIONS_VERSION=0.1
+BIN_PD_ZABBIX=/usr/share/pdagent-integrations/bin/pd-zabbix
+DATA_DIR=/var/lib/pdagent
+OUTQUEUE_DIR=$DATA_DIR/outqueue
 
-# params
-case "$1" in
-  deb|rpm)
-        ;;
-  *)
-        echo "Usage: $0 {deb|rpm}"
-        exit 2
-esac
+# return OS type of current system.
+os_type() {
+  if [ -e /etc/debian_version ]; then
+    echo "debian"
+  elif [ -e /etc/redhat-release ]; then
+    echo "redhat"
+  fi
+}
 
-echo = BUILD TYPE: $1
+# return pid if agent is running, or empty string if not running.
+pdagent_pid() {
+  sudo service pdagent status | egrep -o 'pid [0-9]+' | cut -d' ' -f2
+}
 
-# ensure we're in the build directory
-cd $(dirname "$0")
+# start agent if not running.
+start_agent() {
+  if [ -z "$(pdagent_pid)" ]; then
+    sudo service pdagent start
+  else
+    return 1
+  fi
+}
 
-echo = cleaning build directories
-rm -fr data target
-mkdir data target
+# stop agent if running.
+stop_agent() {
+  if [ -n "$(pdagent_pid)" ]; then
+    sudo service pdagent stop
+  else
+    return 1
+  fi
+}
 
-
-echo = /usr/share/pdagent-integrations/bin
-mkdir -p data/usr/share/pdagent-integrations/bin
-cp ../bin/pd-zabbix data/usr/share/pdagent-integrations/bin
-
-echo = FPM!
-_FPM_DEPENDS="--depends pdagent"
-
-cd target
-fpm -s dir \
-    -t $1 \
-    --name "pdagent-integrations" \
-    --version "0.1" \
-    --architecture all \
-    $_FPM_DEPENDS \
-    --$1-user root \
-    --$1-group root \
-    -C ../data \
-    usr
-
-exit 0
-
+# restart agent if running.
+restart_agent() {
+  if [ -n "$(pdagent_pid)" ]; then
+    sudo service pdagent restart
+  else
+    return 1
+  fi
+}

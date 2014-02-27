@@ -1,5 +1,5 @@
 #
-# See howto.txt for instructions.
+# Installs the agent.
 #
 # Copyright (c) 2013-2014, PagerDuty, Inc. <info@pagerduty.com>
 # All rights reserved.
@@ -29,45 +29,32 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
-set -e  # fail on errors
+. $(dirname $0)/util.sh
 
-# params
-case "$1" in
-  deb|rpm)
-        ;;
+set -e
+set -x
+
+test "$SVC_KEY" != "CHANGEME" || {
+  echo "Please change SVC_KEY in $(dirname $0)/util.sh" >&2
+  exit 1
+}
+
+# install agent.
+case $(os_type) in
+  debian)
+    # FIXME: we need to install pdagent from the internet
+    sudo dpkg -i /vagrant/target/pdagent_${PDAGENT_VERSION}_all.deb
+    sudo dpkg -i /vagrant/target/pdagent-integrations_${PDAGENT_INTEGRATIONS_VERSION}_all.deb
+    ;;
+  redhat)
+    sudo rpm -i /vagrant/target/pdagent-${PDAGENT_VERSION}-1.noarch.rpm
+    sudo rpm -i /vagrant/target/pdagent-integrations-${PDAGENT_INTEGRATIONS_VERSION}-1.noarch.rpm
+    ;;
   *)
-        echo "Usage: $0 {deb|rpm}"
-        exit 2
+    echo "Unknown os_type " $(os_type) >&2
+    exit 1
 esac
 
-echo = BUILD TYPE: $1
-
-# ensure we're in the build directory
-cd $(dirname "$0")
-
-echo = cleaning build directories
-rm -fr data target
-mkdir data target
-
-
-echo = /usr/share/pdagent-integrations/bin
-mkdir -p data/usr/share/pdagent-integrations/bin
-cp ../bin/pd-zabbix data/usr/share/pdagent-integrations/bin
-
-echo = FPM!
-_FPM_DEPENDS="--depends pdagent"
-
-cd target
-fpm -s dir \
-    -t $1 \
-    --name "pdagent-integrations" \
-    --version "0.1" \
-    --architecture all \
-    $_FPM_DEPENDS \
-    --$1-user root \
-    --$1-group root \
-    -C ../data \
-    usr
-
-exit 0
+# check installation status.
+test -e $BIN_PD_ZABBIX
 

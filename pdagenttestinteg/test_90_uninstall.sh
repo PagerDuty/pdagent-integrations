@@ -1,5 +1,5 @@
 #
-# See howto.txt for instructions.
+# Uninstalls integrations.
 #
 # Copyright (c) 2013-2014, PagerDuty, Inc. <info@pagerduty.com>
 # All rights reserved.
@@ -29,45 +29,30 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
-set -e  # fail on errors
+. $(dirname $0)/util.sh
 
-# params
-case "$1" in
-  deb|rpm)
-        ;;
+set -e
+set -x
+
+# uninstall integrations.
+case $(os_type) in
+  debian)
+    sudo apt-get --yes remove pdagent-integrations
+    ;;
+  redhat)
+    sudo rpm -e pdagent-integrations
+    ;;
   *)
-        echo "Usage: $0 {deb|rpm}"
-        exit 2
+    echo "Unknown os_type " $(os_type) >&2
+    exit 1
 esac
 
-echo = BUILD TYPE: $1
+# for the 'negative = success' commands below, (i.e. we expect the command to
+# fail), we are going to remove the 'set -e' condition, and check the exit code
+# ourselves.
+set +e
 
-# ensure we're in the build directory
-cd $(dirname "$0")
-
-echo = cleaning build directories
-rm -fr data target
-mkdir data target
-
-
-echo = /usr/share/pdagent-integrations/bin
-mkdir -p data/usr/share/pdagent-integrations/bin
-cp ../bin/pd-zabbix data/usr/share/pdagent-integrations/bin
-
-echo = FPM!
-_FPM_DEPENDS="--depends pdagent"
-
-cd target
-fpm -s dir \
-    -t $1 \
-    --name "pdagent-integrations" \
-    --version "0.1" \
-    --architecture all \
-    $_FPM_DEPENDS \
-    --$1-user root \
-    --$1-group root \
-    -C ../data \
-    usr
-
-exit 0
+# check uninstallation status -- no components must be present.
+# no binaries...
+test ! -e $BIN_PD_ZABBIX
 
