@@ -1,5 +1,5 @@
 #
-# Installs the agent.
+# Installs the agent integrations.
 #
 # Copyright (c) 2013-2014, PagerDuty, Inc. <info@pagerduty.com>
 # All rights reserved.
@@ -34,21 +34,53 @@
 set -e
 set -x
 
-test "$SVC_KEY" != "CHANGEME" || {
-  echo "Please change SVC_KEY in $(dirname $0)/util.sh" >&2
-  exit 1
-}
-
-# install agent.
+# install agent from internet, install integrations from build-target.
 case $(os_type) in
   debian)
-    # FIXME: we need to install pdagent from the internet
-    sudo dpkg -i /vagrant/target/pdagent_${PDAGENT_VERSION}_all.deb
-    sudo dpkg -i /vagrant/target/pdagent-integrations_${PDAGENT_INTEGRATIONS_VERSION}_all.deb
+    wget -O - http://packages.pagerduty.com/GPG-KEY-pagerduty | \
+        sudo apt-key add -
+    sudo sh -c 'echo "deb http://packages.pagerduty.com/pdagent deb/" \
+      >/etc/apt/sources.list.d/pdagent.list'
+
+    sudo apt-key add /vagrant/target/tmp/GPG-KEY-pagerduty
+    sudo sh -c 'echo "deb file:///vagrant/target deb/" \
+      >/etc/apt/sources.list.d/pdagent-integrations.list'
+
+    sudo apt-get update
+
+    if [ -z "$UPGRADE_FROM_VERSION" ]; then
+        sudo apt-get install -y pdagent-integrations
+    else
+        sudo apt-get install -y pdagent-integrations=$UPGRADE_FROM_VERSION
+        # to upgrade pdagent pkg, run `apt-get install`, not `apt-get upgrade`.
+        # 'install' updates one pkg, 'upgrade' updates all installed pkgs.
+        sudo apt-get install -y pdagent-integrations
+    fi
     ;;
   redhat)
-    sudo rpm -i /vagrant/target/pdagent-${PDAGENT_VERSION}-1.noarch.rpm
-    sudo rpm -i /vagrant/target/pdagent-integrations-${PDAGENT_INTEGRATIONS_VERSION}-1.noarch.rpm
+    sudo sh -c 'cat >/etc/yum.repos.d/pdagent.repo <<EOF
+[pdagent]
+name=PDAgent
+baseurl=http://packages.pagerduty.com/pdagent/rpm
+enabled=1
+gpgcheck=1
+gpgkey=http://packages.pagerduty.com/GPG-KEY-RPM-pagerduty
+EOF'
+    sudo sh -c 'cat >/etc/yum.repos.d/pdagent-integrations.repo <<EOF
+[pdagent-integrations]
+name=PDAgent-Integrations
+baseurl=file:///vagrant/target/rpm
+enabled=1
+gpgcheck=1
+gpgkey=file:///vagrant/target/tmp/GPG-KEY-pagerduty
+EOF'
+
+    if [ -z "$UPGRADE_FROM_VERSION" ]; then
+        sudo yum install -y pdagent-integrations
+    else
+        sudo yum install -y pdagent-integrations-$UPGRADE_FROM_VERSION
+        sudo yum upgrade -y pdagent-integrations
+    fi
     ;;
   *)
     echo "Unknown os_type " $(os_type) >&2
@@ -57,4 +89,3 @@ esac
 
 # check installation status.
 test -e $BIN_PD_ZABBIX
-

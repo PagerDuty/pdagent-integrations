@@ -41,9 +41,11 @@ stop_agent
 test_zabbix_trigger() {
 
   # clear outqueue
-  test $(ls $OUTQUEUE_DIR | wc -l) -eq 0 || sudo rm -r $OUTQUEUE_DIR/*
+  test -d $OUTQUEUE_DIR
+  sudo find $OUTQUEUE_DIR -type f -exec rm -f {} \;
 
-  pd-zabbix DUMMY_SERVICE_KEY trigger "name:Zabbix server has just been restarted
+  $BIN_PD_ZABBIX DUMMY_SERVICE_KEY trigger \
+"name:Zabbix server has just been restarted
 id:13502
 status:PROBLEM
 hostname:Zabbix server
@@ -52,18 +54,27 @@ value:1
 event_id:70
 severity:High"
 
-  test $(ls $OUTQUEUE_DIR | wc -l) -eq 1
+  test $(sudo find $OUTQUEUE_DIR -type f | wc -l) -eq 1
 
-  diff -q $OUTQUEUE_DIR/pdq_*.txt $(dirname $0)/test_10_zabbix.pdq1.txt
+  sudo find $OUTQUEUE_DIR -type f -name "pdq_*" \
+    | xargs sudo sed -i -r 's/"agent_id":"[a-f0-9-]+"/"agent_id":"SOME_ID"/g'
+  sudo find $OUTQUEUE_DIR -type f -name "pdq_*" \
+    | xargs sudo sed -i -r 's/"queued_at":"[0-9]{4}(-[0-9]{2}){2}T[0-9]{2}(:[0-9]{2}){2}Z"/"queued_at":"SOME_TIME"/g'
+
+  sudo diff \
+      $(sudo find $OUTQUEUE_DIR -type f -name "pdq_*" | tail -n1) \
+      $(dirname $0)/test_10_zabbix.pdq1.txt
 
 }
 
 test_zabbix_resolve() {
 
   # clear outqueue
-  test $(ls $OUTQUEUE_DIR | wc -l) -eq 0 || sudo rm -r $OUTQUEUE_DIR/*
+  test -d $OUTQUEUE_DIR
+  sudo find $OUTQUEUE_DIR -type f -exec rm -f {} \;
 
-  pd-zabbix DUMMY_SERVICE_KEY resolve "name:Zabbix server has just been restarted
+  $BIN_PD_ZABBIX DUMMY_SERVICE_KEY resolve \
+"name:Zabbix server has just been restarted
 id:13502
 status:OK
 hostname:Zabbix server
@@ -72,10 +83,17 @@ value:0
 event_id:126
 severity:High"
 
-  test $(ls $OUTQUEUE_DIR | wc -l) -eq 1
-  test $(ls $OUTQUEUE_DIR/pdq_* | wc -l) -eq 1
+  test $(sudo find $OUTQUEUE_DIR -type f | wc -l) -eq 1
+  test $(sudo find $OUTQUEUE_DIR -type f -name "pdq_*" | wc -l) -eq 1
 
-  diff -q $OUTQUEUE_DIR/pdq_*.txt $(dirname $0)/test_10_zabbix.pdq2.txt
+  sudo find $OUTQUEUE_DIR -type f -name "pdq_*" \
+    | xargs sudo sed -i -r 's/"agent_id":"[a-f0-9-]+"/"agent_id":"SOME_ID"/g'
+  sudo find $OUTQUEUE_DIR -type f -name "pdq_*" \
+    | xargs sudo sed -i -r 's/"queued_at":"[0-9]{4}(-[0-9]{2}){2}T[0-9]{2}(:[0-9]{2}){2}Z"/"queued_at":"SOME_TIME"/g'
+
+  sudo diff \
+      $(sudo find $OUTQUEUE_DIR -type f -name "pdq_*" | tail -n1) \
+      $(dirname $0)/test_10_zabbix.pdq2.txt
 
 }
 

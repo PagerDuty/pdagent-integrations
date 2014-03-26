@@ -37,10 +37,10 @@ set -x
 # uninstall integrations.
 case $(os_type) in
   debian)
-    sudo apt-get --yes remove pdagent-integrations
+    sudo apt-get -y remove pdagent-integrations
     ;;
   redhat)
-    sudo rpm -e pdagent-integrations
+    sudo yum remove -y pdagent-integrations
     ;;
   *)
     echo "Unknown os_type " $(os_type) >&2
