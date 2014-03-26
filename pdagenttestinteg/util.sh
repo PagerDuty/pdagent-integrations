@@ -52,7 +52,7 @@ start_agent() {
   if [ -z "$(pdagent_pid)" ]; then
     sudo service pdagent start
   else
-    return 1
+    return 0
   fi
 }
 
@@ -61,7 +61,7 @@ stop_agent() {
   if [ -n "$(pdagent_pid)" ]; then
     sudo service pdagent stop
   else
-    return 1
+    return 0
   fi
 }
 
@@ -70,6 +70,6 @@ restart_agent() {
   if [ -n "$(pdagent_pid)" ]; then
     sudo service pdagent restart
   else
-    return 1
+    start_agent
   fi
 }
