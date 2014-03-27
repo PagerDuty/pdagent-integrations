@@ -1,0 +1,74 @@
+
+# Linux Build Instructions
+
+These instructions assume you're running this on a Mac with Vagrant installed,
+and that the project directory ends up mounted in the VM at `/vagrant`. (this
+should happen automatically)
+
+## One-time setup:
+
+See the Agent project at https://github.com/PagerDuty/pdagent for one-time setup
+instructions.
+
+## PDAgent installation:
+
+PDAgent Integrations require PDAgent to be installed. Follow the instructions on
+the PDAgent release documentation to install it.
+
+## Ubuntu
+
+Building the .deb:
+
+    scons local-repo \
+        gpg-home=build-linux/gnupg \
+        virt=agent-minimal-ubuntu1204
+
+Install & test the .deb:
+
+    vagrant ssh agent-zabbix-ubuntu1004 # or agent-zabbix-ubuntu1204
+
+    sudo apt-key add /vagrant/build-linux/gnupg/build-GPG-KEY
+    sudo sh -c 'echo "deb file:///vagrant/target deb/" \
+      >/etc/apt/sources.list.d/pdagent-integrations.list'
+    sudo apt-get update
+    sudo apt-get install pdagent-integrations
+
+    /usr/share/pdagent-integrations/bin/pd-zabbix  # should run but fail with an error
+
+Uninstall & test cleanup:
+
+    sudo apt-get --yes remove pdagent-integrations
+
+    # rerun the test commands to ensure files are gone
+
+
+## CentOS / RHEL
+
+Building the .rpm:
+
+    scons local-repo \
+        gpg-home=/gpg/path/used/earlier \
+        virt=agent-minimal-centos65
+
+Install & test the .rpm:
+
+    vagrant ssh agent-zabbix-centos65
+
+    sudo sh -c 'cat >/etc/yum.repos.d/pdagent-integrations.repo <<EOF
+[pdagent-integrations]
+name=PDAgent Integrations
+baseurl=file:///vagrant/target/rpm
+enabled=1
+gpgcheck=1
+gpgkey=file:///vagrant/build-linux/gnupg/build-GPG-KEY
+EOF'
+    sudo yum install pdagent-integrations
+
+    /usr/share/pdagent-integrations/bin/pd-zabbix  # should run but fail with an error
+
+Uninstall & test cleanup:
+
+    sudo yum remove --yes pdagent-integrations
+
+    # rerun the test commands to ensure files are gone
+
