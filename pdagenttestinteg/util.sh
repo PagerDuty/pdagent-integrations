@@ -67,9 +67,5 @@ stop_agent() {
 
 # restart agent if running.
 restart_agent() {
-  if [ -n "$(pdagent_pid)" ]; then
-    sudo service pdagent restart
-  else
-    start_agent
-  fi
+  sudo service pdagent restart
 }
