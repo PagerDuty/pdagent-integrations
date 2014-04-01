@@ -44,19 +44,19 @@ Install the PagerDuty Agent using the Agent Install Guide on the PagerDuty
 website (under http://www.pagerduty.com/docs/). Then install the development
 build as follows:
 
-    sudo apt-key add /vagrant/build-linux/gnupg/build-GPG-KEY
+    sudo apt-key add /vagrant/target/tmp/GPG-KEY-pagerduty
     sudo sh -c 'echo "deb file:///vagrant/target deb/" \
       >/etc/apt/sources.list.d/pdagent-integrations.list'
     sudo apt-get update
     sudo apt-get install pdagent-integrations
 
-    /usr/share/pdagent-integrations/bin/pd-zabbix  # should run but fail with an error
+    /usr/share/pdagent-integrations/bin/pd-zabbix  # should run but fail with IndexError
 
 Uninstall & test cleanup:
 
     sudo apt-get --yes remove pdagent-integrations
 
-    # rerun the test commands to ensure files are gone
+    /usr/share/pdagent-integrations/bin/pd-zabbix  # should not exist
 
 
 ## CentOS / RHEL
@@ -82,7 +82,7 @@ name=PDAgent Integrations
 baseurl=file:///vagrant/target/rpm
 enabled=1
 gpgcheck=1
-gpgkey=file:///vagrant/build-linux/gnupg/build-GPG-KEY
+gpgkey=file:///vagrant/target/tmp/GPG-KEY-pagerduty
 EOF'
 sudo yum install pdagent-integrations
 ```
@@ -93,5 +93,5 @@ Uninstall & test cleanup:
 
     sudo yum remove --yes pdagent-integrations
 
-    # rerun the test commands to ensure files are gone
+    /usr/share/pdagent-integrations/bin/pd-zabbix  # should not exist
 
