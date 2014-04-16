@@ -18,7 +18,7 @@ You can use these as follows:
 
         berks install
 
-3. Bring up a Zabbix VM, eg:
+3. Bring up a Zabbix VM, e.g.:
 
         vagrant up agent-zabbix-ubuntu1004
     
