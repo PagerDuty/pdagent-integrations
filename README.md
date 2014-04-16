@@ -32,6 +32,6 @@ For details, see `zabbix-testing.txt`.
 
 ### Release Packages
 
-Follow the same steps as in the Agent project. This project shares the same production signing keys and S3 bucket as Agent.
+Follow the same steps as in the Agent project.
 
 
