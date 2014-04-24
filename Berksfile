@@ -1,7 +1,3 @@
-site :opscode
+source "http://api.berkshelf.com"
 
-cookbook 'database'
-cookbook 'mysql'
-cookbook 'yum', '< 3'
 cookbook 'zabbix', github: 'laradji/zabbix'
-

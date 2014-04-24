@@ -39,6 +39,8 @@ Vagrant.configure("2") do |conf_outer|
 
             if name.start_with? "agent-zabbix-"
 
+                config.berkshelf.enabled = true
+
                 # more mem for zabbix & mysql
                 config.vm.provider :virtualbox do |vbox|
                     vbox.customize ["modifyvm", :id, "--memory", 1024]
