@@ -1,90 +1,46 @@
 
+# Zabbix Testing
 
-This document explains how to test the Zabbix integration.
+This document shows you how to test the Zabbix integration using the public
+Zabbix Integration Guide.
 
+The `Vagrantfile` includes VMs (`agent-zabbix-...`) to automate Zabbix setup.
+You can use these as follows:
 
-## Building
+1. Install Vagrant plugins:
 
-Use `scons dist` for a clean build that also runs the integration tests.
+        vagrant plugin install vagrant-omnibus
 
-For a manual build, see `build-linux/howto.txt`.
+        gem install berkshelf
+        vagrant plugin install vagrant-berkshelf
 
-For the rpm build, remember to copy the rpm out of the build VM:
+2. Install chef cookbooks:
 
-    [vagrant@localhost build-linux]$ cp target/pdagent-integrations-0.1-1.noarch.rpm /vagrant/build-linux/target/
+        berks install
 
+3. Bring up a Zabbix VM, e.g.:
 
-## Zabbix VM Setup
+        vagrant up agent-zabbix-ubuntu1004
+    
+    This should install Zabbix in the VM via chef.
 
-- Create the Zabbix VM:
-
-        vagrant up agent-zabbix-ubuntu1004  # or other zabbix vm
-
-- Get the public IP of the VM:
+4. Get the public IP of the VM:
 
         vagrant ssh agent-zabbix-ubuntu1004 -c "ip addr show eth1"
 
-- Enter the IP in your browser - this should bring up the Zabbix web UI
+5. Login to the Zabbix web UI by entering the above IP address in your browser.
+The login and password will be `admin`/`zabbix`.
 
-- Login: admin / zabbix
+6. Configure Zabbix using the public Zabbix Integration Guide.
 
+     > For development builds of `pdagent-integrations` package, see
+     > `build-linux/howto.txt` for install instructions.
 
+7. Under Configuration > Hosts, enable the "Zabbix server" host. (Click on "Not
+Monitored" under Status)
 
-## Install Agent
-
-Install the agent in the VM:
-
-    vagrant ssh agent-zabbix-ubuntu1004  # or other zabbix vm
-
-in Ubuntu:
-
-    sudo dpkg -i /vagrant/build-linux/target/pdagent-integrations_0.1_all.deb
-
-in CentOS:
-
-    sudo rpm -i /vagrant/build-linux/target/pdagent-integrations-0.1-1.noarch.rpm
-
-
-## Zabbix Agent Setup
-
-- Get alert scripts path from your Zabbix server config. For example:
-
-        [vagrant@localhost zabbix]$ grep AlertScriptsPath /etc/zabbix/zabbix_server.conf
-        AlertScriptsPath=/etc/zabbix/alert.d
-
-    > If this is not set, see the Zabbix manual for the default directory e.g.
-    > for Zabbix 2.0, this is documented here:
-    > https://www.zabbix.com/documentation/2.0/manual/appendix/config/zabbix_server
-
-
-- Make a soft link to `pd-zabbix` in this directory
-
-        cd /etc/zabbix/alert.d  # use the correct directory here
-        sudo ln -s /usr/bin/pd-zabbix
-
-
-- Follow the PagerDuty Zabbix Integration Guide from step 6, with the following changes:
-
-    Step 11: Enter `pd-zabbix` for Script name
-
-    > Note: the guide is here:
-    > http://www.pagerduty.com/docs/guides/zabbix-integration-guide/
-
-    - FIXME: guide may be simpler if we skip creating PD user & user group
-    - FIXME: guide may be simpler if create the group first, especially for
-      Zabbix v2
-
-
-## Testing
-
-- Under Configuration > Hosts, enable the "Zabbix server" host. (Click on "Not
-  Monitored" under Status)
-
-- Reboot the Zabbix VM:
-
-        [vagrant@localhost zabbix]$ sudo reboot
+8. Reboot the Zabbix VM (`sudo reboot` in the VM). This should trigger an alert.
 
     > Note: the VM needs to be up for at least 10 mins after you enable checks
     > since the Zabbix host restart check runs only once every 10 mins.
-
 

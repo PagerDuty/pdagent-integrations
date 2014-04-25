@@ -27,8 +27,6 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
-PDAGENT_VERSION=0.6
-PDAGENT_INTEGRATIONS_VERSION=0.1
 BIN_PD_ZABBIX=/usr/share/pdagent-integrations/bin/pd-zabbix
 DATA_DIR=/var/lib/pdagent
 OUTQUEUE_DIR=$DATA_DIR/outqueue
