@@ -65,7 +65,7 @@ enabled=1
 gpgcheck=1
 gpgkey=file:///vagrant/target/tmp/GPG-KEY-pagerduty
 EOF'
-sudo yum install pdagent-integrations
+sudo yum install -y pdagent-integrations
 ```
 
     /usr/share/pdagent-integrations/bin/pd-zabbix  # should run but fail with IndexError
