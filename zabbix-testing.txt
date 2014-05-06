@@ -4,42 +4,16 @@
 This document shows you how to test the Zabbix integration using the public
 Zabbix Integration Guide.
 
-The `Vagrantfile` includes VMs (`agent-zabbix-...`) to automate Zabbix setup.
-You can use these as follows:
-
-1. Install Vagrant plugins:
-
-        vagrant plugin install vagrant-omnibus
-
-        gem install berkshelf
-        vagrant plugin install vagrant-berkshelf
-
-2. Install chef cookbooks:
-
-        berks install
-
-3. Bring up a Zabbix VM, e.g.:
-
-        vagrant up agent-zabbix-ubuntu1004
-    
-    This should install Zabbix in the VM via chef.
-
-4. Get the public IP of the VM:
-
-        vagrant ssh agent-zabbix-ubuntu1004 -c "ip addr show eth1"
-
-5. Login to the Zabbix web UI by entering the above IP address in your browser.
-The login and password will be `admin`/`zabbix`.
-
-6. Configure Zabbix using the public Zabbix Integration Guide.
+1. Configure Zabbix using the public Zabbix Integration Guide:
+    http://www.pagerduty.com/docs/guides/zabbix-integration-guide-2/
 
      > For development builds of `pdagent-integrations` package, see
      > `build-linux/howto.txt` for install instructions.
 
-7. Under Configuration > Hosts, enable the "Zabbix server" host. (Click on "Not
+2. Under Configuration > Hosts, enable the "Zabbix server" host. (Click on "Not
 Monitored" under Status)
 
-8. Reboot the Zabbix VM (`sudo reboot` in the VM). This should trigger an alert.
+3. Reboot the Zabbix VM (`sudo reboot` in the VM). This should trigger an alert.
 
     > Note: the VM needs to be up for at least 10 mins after you enable checks
     > since the Zabbix host restart check runs only once every 10 mins.

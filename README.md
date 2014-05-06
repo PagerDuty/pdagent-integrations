@@ -1,7 +1,11 @@
+
+See http://www.pagerduty.com/docs/guides/agent-install-guide/ for the PagerDuty
+Agent Install Guide and related integration guides.
+
 # Introduction
 
-This project contains integrations for various monitoring tools with the PagerDuty
-Agent.
+This project contains integrations for various monitoring tools with the
+PagerDuty Agent.
 
 It currently include support for:
 
