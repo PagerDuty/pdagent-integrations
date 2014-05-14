@@ -62,7 +62,7 @@ mkdir data target
 
 echo = /usr/share/pdagent-integrations/bin
 mkdir -p data/usr/share/pdagent-integrations/bin
-cp ../bin/pd-zabbix data/usr/share/pdagent-integrations/bin
+cp ../bin/* data/usr/share/pdagent-integrations/bin
 
 echo = FPM!
 _FPM_DEPENDS="--depends pdagent"
