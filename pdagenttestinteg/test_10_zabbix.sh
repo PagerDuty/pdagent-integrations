@@ -56,13 +56,13 @@ severity:High"
 
   test $(sudo find $OUTQUEUE_DIR -type f | wc -l) -eq 1
 
-  sudo find $OUTQUEUE_DIR -type f -name "pdq_*" \
+  sudo find $OUTQUEUE_DIR -type f -name "*.txt" \
     | xargs sudo sed -i -r 's/"agent_id":"[a-f0-9-]+"/"agent_id":"SOME_ID"/g'
-  sudo find $OUTQUEUE_DIR -type f -name "pdq_*" \
+  sudo find $OUTQUEUE_DIR -type f -name "*.txt" \
     | xargs sudo sed -i -r 's/"queued_at":"[0-9]{4}(-[0-9]{2}){2}T[0-9]{2}(:[0-9]{2}){2}Z"/"queued_at":"SOME_TIME"/g'
 
   sudo diff \
-      $(sudo find $OUTQUEUE_DIR -type f -name "pdq_*" | tail -n1) \
+      $(sudo find $OUTQUEUE_DIR -type f -name "*.txt" | tail -n1) \
       $(dirname $0)/test_10_zabbix.pdq1.txt
 
 }
@@ -84,15 +84,15 @@ event_id:126
 severity:High"
 
   test $(sudo find $OUTQUEUE_DIR -type f | wc -l) -eq 1
-  test $(sudo find $OUTQUEUE_DIR -type f -name "pdq_*" | wc -l) -eq 1
+  test $(sudo find $OUTQUEUE_DIR -type f -name "*.txt" | wc -l) -eq 1
 
-  sudo find $OUTQUEUE_DIR -type f -name "pdq_*" \
+  sudo find $OUTQUEUE_DIR -type f -name "*.txt" \
     | xargs sudo sed -i -r 's/"agent_id":"[a-f0-9-]+"/"agent_id":"SOME_ID"/g'
-  sudo find $OUTQUEUE_DIR -type f -name "pdq_*" \
+  sudo find $OUTQUEUE_DIR -type f -name "*.txt" \
     | xargs sudo sed -i -r 's/"queued_at":"[0-9]{4}(-[0-9]{2}){2}T[0-9]{2}(:[0-9]{2}){2}Z"/"queued_at":"SOME_TIME"/g'
 
   sudo diff \
-      $(sudo find $OUTQUEUE_DIR -type f -name "pdq_*" | tail -n1) \
+      $(sudo find $OUTQUEUE_DIR -type f -name "*.txt" | tail -n1) \
       $(dirname $0)/test_10_zabbix.pdq2.txt
 
 }
