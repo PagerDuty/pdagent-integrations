@@ -52,7 +52,7 @@ class NagiosEvent:
             self.__details,
             agent_config.get_agent_id(),
             "pd-nagios"
-        )
+            )
 
     def _event_description(self):
         if self.__notification_type == "service":
@@ -73,7 +73,7 @@ class NagiosEvent:
                 return "event_source=service;host_name={0};service_desc={1}".format(
                     self.__details["HOSTNAME"],
                     self.__details["SERVICEDESC"]
-                )
+                    )
             elif self.__notification_type == "host":
                 return "event_source=host;host_name={0}".format(self.__details["HOSTNAME"])
             else:
@@ -85,7 +85,8 @@ class NagiosEvent:
         if not self._required_fields().issubset(self.__details.keys()):
             msg = "Missing fields for type '{0}'.  {1} required".format(
                 self.__notification_type,
-                ", ".join(self._required_fields()))
+                ", ".join(self._required_fields())
+                )
             raise ValueError(msg)
 
     def _required_fields(self):
@@ -113,7 +114,8 @@ def main():
         args.event_type,
         args.notification_type,
         details,
-        args.incident_key)
+        args.incident_key
+        )
 
     try:
         incident_key = event.enqueue()
@@ -129,32 +131,37 @@ def build_queue_arg_parser(description):
         "--service-key",
         dest="service_key",
         required=True,
-        help="Service API Key")
+        help="Service API Key"
+        )
     parser.add_argument(
         "-t",
         "--event-type",
         dest="event_type",
         required=True,
         help="Event type",
-        choices=["PROBLEM", "ACKNOWLEDGEMENT", "RECOVERY", "NOP"])
+        choices=["PROBLEM", "ACKNOWLEDGEMENT", "RECOVERY", "NOP"]
+        )
     parser.add_argument(
         "-i",
         "--incident-key",
         dest="incident_key",
-        help="Incident Key"),
+        help="Incident Key"
+        )
     parser.add_argument(
         "-f",
         "--field",
         action="append",
         dest="fields",
-        help="Add given KEY=VALUE pair to the event details")
+        help="Add given KEY=VALUE pair to the event details"
+        )
     parser.add_argument(
         "-n",
         "--notification-type",
         dest="notification_type",
         required=True,
         help="Nagios notification type (host or service)",
-        choices=["service", "host"])
+        choices=["service", "host"]
+        )
     return parser
 
 def parse_fields(fields):
