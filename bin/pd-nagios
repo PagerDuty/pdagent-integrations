@@ -49,7 +49,7 @@ class NagiosEvent:
             self.__service_key,
             self._incident_key(),
             self._event_description(),
-            self.__details,
+            self._details(),
             agent_config.get_agent_id(),
             "pd-nagios"
             )
@@ -102,6 +102,12 @@ class NagiosEvent:
             "RECOVERY": "resolve",
             "NOP": "nop"
         }[self.__event_type]
+
+    def _details(self):
+        return dict(
+            self.__details.items() +
+            [("pd_nagios_object", self.__notification_type)]
+            )
 
 def main():
     description = "Enqueue an event from Nagios to PagerDuty."
