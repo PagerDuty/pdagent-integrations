@@ -81,7 +81,7 @@ class NagiosEvent:
                     self._details[NagiosEvent.SERVICE_DESCRIPTION]
                     )
             elif self._notification_type == "host":
-                return "event_source=host;host_name={0}".format(self._details["HOSTNAME"])
+                return "event_source=host;host_name={0}".format(self._details[NagiosEvent.HOST_NAME])
             else:
                 raise ValueError("notification_type must be one of 'service' or 'host'")
         else:
