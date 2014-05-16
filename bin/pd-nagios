@@ -36,6 +36,14 @@ class NagiosEvent:
     SERVICE_DESCRIPTION = "SERVICEDESC"
     SERVICE_STATE = "SERVICESTATE"
 
+    REQUIRED_FIELDS = {
+        "host": set([HOST_NAME, HOST_STATE]),
+        "service": set([HOST_NAME,
+            SERVICE_DESCRIPTION,
+            SERVICE_STATE]
+            )
+        }
+
     def __init__(self, service_key, event_type, notification_type, details, incident_key=None):
         self._service_key = service_key
         self._event_type = event_type
@@ -88,21 +96,12 @@ class NagiosEvent:
             return self._given_incident_key
 
     def _check_required_fields(self):
-        if not self._required_fields().issubset(self._details.keys()):
+        if not NagiosEvent.REQUIRED_FIELDS[self._notification_type].issubset(self._details.keys()):
             msg = "Missing fields for type '{0}'.  {1} required".format(
                 self._notification_type,
                 ", ".join(self._required_fields())
                 )
             raise ValueError(msg)
-
-    def _required_fields(self):
-        return {
-            "host": set([NagiosEvent.HOST_NAME, NagiosEvent.HOST_STATE]),
-            "service": set([NagiosEvent.HOST_NAME,
-                NagiosEvent.SERVICE_DESCRIPTION,
-                NagiosEvent.SERVICE_STATE]
-                )
-        }[self._notification_type]
 
     def _pagerduty_event_type(self):
         return {
