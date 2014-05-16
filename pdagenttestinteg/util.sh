@@ -68,3 +68,9 @@ stop_agent() {
 restart_agent() {
   sudo service pdagent restart
 }
+
+# empty the contents of the queue to set up a known queue state
+purge_queue() {
+  test -d $OUTQUEUE_DIR
+  sudo find $OUTQUEUE_DIR -type f -exec rm -f {} \;
+}
