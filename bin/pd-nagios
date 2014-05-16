@@ -31,6 +31,11 @@
 #
 
 class NagiosEvent:
+    HOST_NAME = "HOSTNAME"
+    HOST_STATE = "HOSTSTATE"
+    SERVICE_DESCRIPTION = "SERVICEDESC"
+    SERVICE_STATE = "SERVICESTATE"
+
     def __init__(self, service_key, event_type, notification_type, details, incident_key=None):
         self.__service_key = service_key
         self.__event_type = event_type
@@ -56,23 +61,24 @@ class NagiosEvent:
 
     def _event_description(self):
         if self.__notification_type == "service":
-            return "SERVICEDESC={0}; SERVICESTATE={1}; HOSTNAME={2}".format(
-                self.__details['SERVICEDESC'],
-                self.__details['SERVICESTATE'],
-                self.__details['HOSTNAME']
-                )
+            fields = [NagiosEvent.SERVICE_DESCRIPTION,
+                NagiosEvent.SERVICE_STATE,
+                NagiosEvent.HOST_NAME
+                ]
         elif self.__notification_type == "host":
-            return "HOSTNAME={0}; HOSTSTATE={1}".format(
-                self.__details['HOSTNAME'],
-                self.__details['HOSTSTATE']
-                )
+            fields = [NagiosEvent.HOST_NAME, NagiosEvent.HOST_STATE]
+        else:
+            return None
+
+        pairs = ["{0}={1}".format(field, self.__details[field]) for field in fields]
+        return "; ".join(pairs)
 
     def _incident_key(self):
         if self.__incident_key is None:
             if self.__notification_type == "service":
                 return "event_source=service;host_name={0};service_desc={1}".format(
-                    self.__details["HOSTNAME"],
-                    self.__details["SERVICEDESC"]
+                    self.__details[NagiosEvent.HOST_NAME],
+                    self.__details[NagiosEvent.SERVICE_DESCRIPTION]
                     )
             elif self.__notification_type == "host":
                 return "event_source=host;host_name={0}".format(self.__details["HOSTNAME"])
@@ -91,8 +97,11 @@ class NagiosEvent:
 
     def _required_fields(self):
         return {
-            "host": set(["HOSTNAME","HOSTSTATE"]),
-            "service": set(["HOSTNAME", "SERVICEDESC","SERVICESTATE"])
+            "host": set([NagiosEvent.HOST_NAME, NagiosEvent.HOST_STATE]),
+            "service": set([NagiosEvent.HOST_NAME,
+                NagiosEvent.SERVICE_DESCRIPTION,
+                NagiosEvent.SERVICE_STATE]
+                )
         }[self.__notification_type]
 
     def _pagerduty_event_type(self):
