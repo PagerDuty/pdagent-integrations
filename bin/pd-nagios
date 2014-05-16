@@ -37,11 +37,11 @@ class NagiosEvent:
     SERVICE_STATE = "SERVICESTATE"
 
     def __init__(self, service_key, event_type, notification_type, details, incident_key=None):
-        self.__service_key = service_key
-        self.__event_type = event_type
-        self.__notification_type = notification_type
-        self.__details = details
-        self.__incident_key = incident_key
+        self._service_key = service_key
+        self._event_type = event_type
+        self._notification_type = notification_type
+        self._details = dict(details.items() + [("pd_nagios_object", self._notification_type)])
+        self._given_incident_key = incident_key
 
     def enqueue(self):
         from pdagent.config import load_agent_config
@@ -51,46 +51,46 @@ class NagiosEvent:
         return queue_event(
             agent_config.get_enqueuer(),
             self._pagerduty_event_type(),
-            self.__service_key,
+            self._service_key,
             self._incident_key(),
             self._event_description(),
-            self._details(),
+            self._details,
             agent_config.get_agent_id(),
             "pd-nagios"
             )
 
     def _event_description(self):
-        if self.__notification_type == "service":
+        if self._notification_type == "service":
             fields = [NagiosEvent.SERVICE_DESCRIPTION,
                 NagiosEvent.SERVICE_STATE,
                 NagiosEvent.HOST_NAME
                 ]
-        elif self.__notification_type == "host":
+        elif self._notification_type == "host":
             fields = [NagiosEvent.HOST_NAME, NagiosEvent.HOST_STATE]
         else:
             return None
 
-        pairs = ["{0}={1}".format(field, self.__details[field]) for field in fields]
+        pairs = ["{0}={1}".format(field, self._details[field]) for field in fields]
         return "; ".join(pairs)
 
     def _incident_key(self):
-        if self.__incident_key is None:
-            if self.__notification_type == "service":
+        if self._given_incident_key is None:
+            if self._notification_type == "service":
                 return "event_source=service;host_name={0};service_desc={1}".format(
-                    self.__details[NagiosEvent.HOST_NAME],
-                    self.__details[NagiosEvent.SERVICE_DESCRIPTION]
+                    self._details[NagiosEvent.HOST_NAME],
+                    self._details[NagiosEvent.SERVICE_DESCRIPTION]
                     )
-            elif self.__notification_type == "host":
-                return "event_source=host;host_name={0}".format(self.__details["HOSTNAME"])
+            elif self._notification_type == "host":
+                return "event_source=host;host_name={0}".format(self._details["HOSTNAME"])
             else:
                 raise ValueError("notification_type must be one of 'service' or 'host'")
         else:
-            return self.__incident_key
+            return self._given_incident_key
 
     def _check_required_fields(self):
-        if not self._required_fields().issubset(self.__details.keys()):
+        if not self._required_fields().issubset(self._details.keys()):
             msg = "Missing fields for type '{0}'.  {1} required".format(
-                self.__notification_type,
+                self._notification_type,
                 ", ".join(self._required_fields())
                 )
             raise ValueError(msg)
@@ -102,20 +102,14 @@ class NagiosEvent:
                 NagiosEvent.SERVICE_DESCRIPTION,
                 NagiosEvent.SERVICE_STATE]
                 )
-        }[self.__notification_type]
+        }[self._notification_type]
 
     def _pagerduty_event_type(self):
         return {
             "PROBLEM": "trigger",
             "ACKNOWLEDGEMENT": "acknowledge",
             "RECOVERY": "resolve"
-        }[self.__event_type]
-
-    def _details(self):
-        return dict(
-            self.__details.items() +
-            [("pd_nagios_object", self.__notification_type)]
-            )
+        }[self._event_type]
 
 def main():
     description = "Enqueue an event from Nagios to PagerDuty."
