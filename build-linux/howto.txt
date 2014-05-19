@@ -32,13 +32,14 @@ build as follows:
     sudo apt-get install pdagent-integrations
 
     /usr/share/pdagent-integrations/bin/pd-zabbix  # should run but fail with IndexError
+    /usr/share/pdagent-integrations/bin/pd-nagios  # should fail with an error
 
 Uninstall & test cleanup:
 
     sudo apt-get --yes remove pdagent-integrations
 
     /usr/share/pdagent-integrations/bin/pd-zabbix  # should not exist
-
+    /usr/share/pdagent-integrations/bin/pd-nagios  # should not exist
 
 ## CentOS / RHEL
 
@@ -69,10 +70,11 @@ sudo yum install -y pdagent-integrations
 ```
 
     /usr/share/pdagent-integrations/bin/pd-zabbix  # should run but fail with IndexError
+    /usr/share/pdagent-integrations/bin/pd-zabbix  # should fail with an error
 
 Uninstall & test cleanup:
 
     sudo yum remove -y pdagent-integrations
 
     /usr/share/pdagent-integrations/bin/pd-zabbix  # should not exist
-
+    /usr/share/pdagent-integrations/bin/pd-nagios  # should not exist
