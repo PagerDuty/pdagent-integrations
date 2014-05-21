@@ -89,3 +89,4 @@ esac
 
 # check installation status.
 test -e $BIN_PD_ZABBIX
+test -e $BIN_PD_NAGIOS

@@ -1,0 +1,1 @@
+{"agent":{"agent_id":"SOME_ID","queued_at":"SOME_TIME","queued_by":"pd-nagios"},"description":"HOSTNAME=host.test.local; HOSTSTATE=critical","details":{"HOSTNAME":"host.test.local","HOSTSTATE":"critical","pd_nagios_object":"host"},"event_type":"trigger","incident_key":"event_source=host;host_name=host.test.local","service_key":"DUMMY_SERVICE_KEY"}

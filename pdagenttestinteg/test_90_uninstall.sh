@@ -55,4 +55,5 @@ set +e
 # check uninstallation status -- no components must be present.
 # no binaries...
 test ! -e $BIN_PD_ZABBIX
+test ! -e $BIN_PD_NAGIOS
 

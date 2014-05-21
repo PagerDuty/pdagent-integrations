@@ -27,6 +27,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
+BIN_PD_NAGIOS=/usr/share/pdagent-integrations/bin/pd-nagios
 BIN_PD_ZABBIX=/usr/share/pdagent-integrations/bin/pd-zabbix
 DATA_DIR=/var/lib/pdagent
 OUTQUEUE_DIR=$DATA_DIR/outqueue
@@ -66,4 +67,10 @@ stop_agent() {
 # restart agent if running.
 restart_agent() {
   sudo service pdagent restart
+}
+
+# empty the contents of the queue to set up a known queue state
+purge_queue() {
+  test -d $OUTQUEUE_DIR
+  sudo find $OUTQUEUE_DIR -type f -exec rm -f {} \;
 }
