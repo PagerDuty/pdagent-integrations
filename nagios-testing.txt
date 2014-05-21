@@ -1,0 +1,25 @@
+
+# Nagios Testing
+
+This document shows you how to test the Nagios integration using the public
+Nagios Integration Guide.
+
+1. Configure Nagios using the public Nagios Integration Guide:
+    http://www.pagerduty.com/docs/guides/nagios-integration-guide-2/
+
+     > For development builds of `pdagent-integrations` package, see
+     > `build-linux/howto.txt` for install instructions.
+
+2. The simplest way to test that your Nagios integration is working as
+    expected (assuming that you are running the SSH check), is to disable
+    the system ssh service.  This will not disconnect any existing ssh sessions.
+
+    `sudo service ssh stop`
+
+    You can then force the check in Nagios in
+    Services > SSH > Re-schedule the next check of this service.  By default, a Nagios
+    service must fail 5 checks before it will send a notification.
+
+    Be sure to restart the ssh service when you have verified your test.
+
+    `sudo service ssh start`
