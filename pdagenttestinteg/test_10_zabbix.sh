@@ -45,7 +45,7 @@ test_zabbix_trigger() {
   sudo find $OUTQUEUE_DIR -type f -exec rm -f {} \;
 
   $BIN_PD_ZABBIX DUMMY_SERVICE_KEY trigger \
-"name:Zabbix server has just been restarted
+"name:Zabbix server: just restarted
 id:13502
 status:PROBLEM
 hostname:Zabbix server
@@ -74,7 +74,7 @@ test_zabbix_resolve() {
   sudo find $OUTQUEUE_DIR -type f -exec rm -f {} \;
 
   $BIN_PD_ZABBIX DUMMY_SERVICE_KEY resolve \
-"name:Zabbix server has just been restarted
+"name:Zabbix server: just restarted
 id:13502
 status:OK
 hostname:Zabbix server

@@ -53,7 +53,7 @@ test_service_trigger() {
   purge_queue
 
   $BIN_PD_NAGIOS -k DUMMY_SERVICE_KEY -t PROBLEM -n service -f HOSTNAME=service.test.local \
-    -f SERVICEDESC="test service" -f SERVICESTATE=critical
+    -f SERVICEDESC=service=test-service -f SERVICESTATE=critical
 
   fix_events
 
@@ -65,7 +65,7 @@ test_service_resolve() {
   purge_queue
 
   $BIN_PD_NAGIOS -k DUMMY_SERVICE_KEY -t RECOVERY -n service -f HOSTNAME=service.test.local \
-    -f SERVICEDESC="test service" -f SERVICESTATE=critical
+    -f SERVICEDESC=service=test-service -f SERVICESTATE=critical
 
   fix_events
 
