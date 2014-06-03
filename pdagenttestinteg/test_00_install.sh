@@ -72,9 +72,21 @@ name=PDAgent-Integrations
 baseurl=file:///vagrant/target/rpm
 enabled=1
 gpgcheck=1
+priority=20
 gpgkey=file:///vagrant/target/tmp/GPG-KEY-pagerduty
 EOF'
 
+    # both these repos contain the integrations package (pdagent repo has the
+    # already-published integrations package, and pdagent-integrations repo has
+    # our local, currently-being-built one.) In Redhat, apparently, determining
+    # the correct repo is not well-defined. So we install a yum-priorities
+    # plugin, which allows us to specify that the local repo takes priority.
+    # (See the `priority=20` value in the `pdagent-integrations.repo` file.)
+    sudo yum install -y yum-plugin-priorities
+    sudo sh -c 'cat >/etc/yum/pluginconf.d/priorities.conf <<EOF
+[main]
+enabled=1
+EOF'
     if [ -z "$UPGRADE_FROM_VERSION" ]; then
         sudo yum install -y pdagent-integrations
     else
