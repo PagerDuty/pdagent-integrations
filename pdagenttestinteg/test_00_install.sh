@@ -73,7 +73,7 @@ baseurl=file:///vagrant/target/rpm
 enabled=1
 gpgcheck=1
 priority=20
-gpgkey=file:///vagrant/target/tmp/GPG-KEY-pagerduty
+gpgkey=file:///vagrant/target/tmp/GPG-KEY-RPM-pagerduty
 EOF'
 
     # both these repos contain the integrations package (pdagent repo has the
