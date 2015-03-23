@@ -168,7 +168,7 @@ def build_queue_arg_parser(description):
         "--env-field",
         action="append",
         dest="env_fields",
-        help="Add given KEY and matching NAGIOS_KEY environment value to the event details"
+        help="Add given KEY and matching NAGIOS_KEY or ICINGA_KEY environment value to the event details"
         )
     parser.add_argument(
         "-n",
@@ -188,10 +188,9 @@ def parse_fields(fields):
 def parse_env_fields(details, env_fields):
     if env_fields is None:
         return
-    import os
+    from os import environ
     for f in env_fields:
-        v = os.environ.get("NAGIOS_%s" % f, "")
-        details[f] = v
+        details[f] = environ.get("NAGIOS_%s" % f) or environ.get("ICINGA_%s" % f) or ""
 
 if __name__ == "__main__":
     try:
