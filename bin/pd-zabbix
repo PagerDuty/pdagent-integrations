@@ -67,6 +67,10 @@ def main():
     # The third argument is the data
     details = _parse_zabbix_body(sys.argv[3])
 
+    # Zabbix will still issue a trigger if the host, trigger, or action gets disabled. Ignore this.
+    if "NOTE" in details and "Escalation cancelled" in details["NOTE"]:
+        return
+
     # Incident key is created by concatenating trigger id and host name.
     # Remember, incident key is used for de-duping and also to match trigger with resolve messages
     incident_key = "%s-%s" % (details["id"], details["hostname"])
