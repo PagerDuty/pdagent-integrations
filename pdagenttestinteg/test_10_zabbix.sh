@@ -61,7 +61,7 @@ severity:High"
   sudo find $OUTQUEUE_DIR -type f -name "*.txt" \
     | xargs sudo sed -i -r 's/"queued_at":"[0-9]{4}(-[0-9]{2}){2}T[0-9]{2}(:[0-9]{2}){2}Z"/"queued_at":"SOME_TIME"/g'
 
-  sudo diff \
+  sudo diff -b \
       $(sudo find $OUTQUEUE_DIR -type f -name "*.txt" | tail -n1) \
       $(dirname $0)/test_10_zabbix.pdq1.txt
 
@@ -91,7 +91,7 @@ severity:High"
   sudo find $OUTQUEUE_DIR -type f -name "*.txt" \
     | xargs sudo sed -i -r 's/"queued_at":"[0-9]{4}(-[0-9]{2}){2}T[0-9]{2}(:[0-9]{2}){2}Z"/"queued_at":"SOME_TIME"/g'
 
-  sudo diff \
+  sudo diff -b \
       $(sudo find $OUTQUEUE_DIR -type f -name "*.txt" | tail -n1) \
       $(dirname $0)/test_10_zabbix.pdq2.txt
 

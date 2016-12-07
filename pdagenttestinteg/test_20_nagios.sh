@@ -57,7 +57,7 @@ test_service_trigger() {
 
   fix_events
 
-  sudo diff $(dirname $0)/test_20_nagios.service.trigger.txt \
+  sudo diff -b $(dirname $0)/test_20_nagios.service.trigger.txt \
     $(sudo find $OUTQUEUE_DIR -type f -name "*.txt" | tail -n1)
 }
 
@@ -69,7 +69,7 @@ test_service_resolve() {
 
   fix_events
 
-  sudo diff $(dirname $0)/test_20_nagios.service.resolve.txt \
+  sudo diff -b $(dirname $0)/test_20_nagios.service.resolve.txt \
     $(sudo find $OUTQUEUE_DIR -type f -name "*.txt" | tail -n1)
 }
 
@@ -81,7 +81,7 @@ test_host_trigger() {
 
   fix_events
 
-  sudo diff $(dirname $0)/test_20_nagios.host.trigger.txt \
+  sudo diff -b $(dirname $0)/test_20_nagios.host.trigger.txt \
     $(sudo find $OUTQUEUE_DIR -type f -name "*.txt" | tail -n1)
 }
 
@@ -93,7 +93,7 @@ test_host_resolve() {
 
   fix_events
 
-  sudo diff $(dirname $0)/test_20_nagios.host.resolve.txt \
+  sudo diff -b $(dirname $0)/test_20_nagios.host.resolve.txt \
     $(sudo find $OUTQUEUE_DIR -type f -name "*.txt" | tail -n1)
 }
 
