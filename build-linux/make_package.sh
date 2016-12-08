@@ -31,6 +31,9 @@
 
 set -e  # fail on errors
 
+# source common variables
+. ./make_common.env
+
 # params
 pkg_type=""
 
@@ -83,11 +86,19 @@ else
     _PKG_MAINTAINER="RPM Package Maintainer"
 fi
 _PKG_MAINTAINER="$_PKG_MAINTAINER (PagerDuty, Inc.) <packages@pagerduty.com>"
-fpm -s dir \
+
+if [ "$pkg_type" = "rpm" ]; then
+    source /opt/rh/ruby193/enable
+    FPM=/opt/rh/ruby193/root/usr/local/share/gems/gems/fpm-$FPM_VERSION/bin/fpm
+else
+    FPM=fpm
+fi
+
+$FPM -s dir \
     -t $pkg_type \
     --name "pdagent-integrations" \
     --description "$_DESC" \
-    --version "1.2" \
+    --version "1.3" \
     --architecture all \
     --url "http://www.pagerduty.com" \
     --license 'Open Source' \

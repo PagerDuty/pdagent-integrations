@@ -62,6 +62,8 @@ class NagiosEvent:
             self._service_key,
             self._incident_key(),
             self._event_description(),
+            "",
+            "",
             self._details,
             agent_config.get_agent_id(),
             "pd-nagios"

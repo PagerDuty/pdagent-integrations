@@ -1,4 +1,3 @@
-
 # Linux Build Instructions
 
 These instructions assume you're running this on a Mac with Vagrant installed,
@@ -19,7 +18,7 @@ Building the .deb:
 
 Install & test the .deb:
 
-    vagrant ssh agent-minimal-ubuntu1004 # or agent-minimal-ubuntu1204
+    vagrant ssh agent-minimal-ubuntu1204
 
 Install the PagerDuty Agent using the Agent Install Guide on the PagerDuty
 website (under http://www.pagerduty.com/docs/). Then install the development
