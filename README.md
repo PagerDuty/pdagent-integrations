@@ -9,18 +9,15 @@ PagerDuty Agent.
 
 It currently include support for:
 
-- Nagios
-- Sensu
 - Zabbix
+
 
 ## Developing
 
 See the Agent project at https://github.com/PagerDuty/pdagent for setup
 instructions for Pydev, IntelliJ IDEA, Scons and Vagrant.
 
-See the file `zabbix-testing.txt` for Zabbix build and test instructions,
-`nagios-testing.txt` for Nagios build and test instructions, and the file
-`sensu-testing.txt` for Sensu build and test instructions.
+See the file `zabbix-testing.txt` for Zabbix build and test instructions.
 
 
 ### Building Packages
