@@ -30,12 +30,14 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
-import argparse,sys,traceback
+import argparse
+import sys
+import traceback
 
-def log_exception(error,preface='Unexpected error'):
-    '''Prints user-friendly error message to the pdagent log'''
+def log_exception(error, preface="Unexpected error"):
+    """Prints user-friendly error message to the pdagent log"""
     from pdagent.pdqueue import logger
-    message = '%s; encountered %s: %s\n%s'%(
+    message = "%s; encountered %s: %s\n%s"%(
         preface,
         error.__class__.__name__,
         str(error),
@@ -44,17 +46,17 @@ def log_exception(error,preface='Unexpected error'):
     logger.error(message)
 
 class SensuEvent:
-    '''Class for enqueueing a Sensu check result as a PD event'''
+    """Class for enqueueing a Sensu check result as a PD event"""
 
-
-    def __init__(self,integration_key,check_result,given_incident_key=None): 
-        '''Constructor.
+    def __init__(self, integration_key, check_result, given_incident_key=None): 
+        """Constructor
         
         Arguments:
         :integration_key: The integration key for the integration
         :check_result: JSON string containing the result
-        :given_incident_key: If specified, a custom incident key for deduplication
-        '''
+        :given_incident_key: If specified, a custom incident key for 
+            deduplication
+        """
         import json
         self._integration_key = integration_key
         # Parse the body. It should be in the form of a Sensu "check result"
@@ -66,7 +68,7 @@ class SensuEvent:
             jlen = len(check_result)
             log_exception(
                 e,
-                'Invalid JSON (length %d) or unknown error in pd-sensu'%jlen
+                "Invalid JSON (length %d) or unknown error in pd-sensu"%jlen
             )
             raise e
         self._details = details
@@ -102,22 +104,22 @@ class SensuEvent:
             self._integration_key,
             self._incident_key,
             self._description,
-            "",
-            "",
+            '',
+            '',
             self._details,
             agent_config.get_agent_id(),
-            "pd-sensu"
+            'pd-sensu'
         )
 
 def parse_args():
-    description="Enqueue an event from Nagios to PagerDuty."
+    description = "Enqueue an event from Nagios to PagerDuty."
     parser = argparse.ArgumentParser(description)
     parser.add_argument(
         '-k',
         '--integration-key',
         dest='integration_key',
         required=True,
-        help='''PagerDuty Sensu integration key'''
+        help="PagerDuty Sensu integration key"
     )
     parser.add_argument(
         '-i',
@@ -125,7 +127,7 @@ def parse_args():
         dest='incident_key',
         required=False,
         default=None,
-        help='''Specifies a custom incident key for deduplication'''
+        help="Specifies a custom incident key for deduplication"
     )
     return parser.parse_args()
 
@@ -143,7 +145,7 @@ def main():
     except Exception as e:
         log_exception(
             e,
-            preface='Uncaught exception while submitting Sensu event to queue'
+            preface="Uncaught exception while submitting Sensu event to queue"
         )
         raise e
 
