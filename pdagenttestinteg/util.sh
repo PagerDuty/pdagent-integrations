@@ -29,6 +29,7 @@
 
 BIN_PD_NAGIOS=/usr/share/pdagent-integrations/bin/pd-nagios
 BIN_PD_ZABBIX=/usr/share/pdagent-integrations/bin/pd-zabbix
+BIN_PD_SENSU=/usr/share/pdagent-integrations/bin/pd-sensu
 DATA_DIR=/var/lib/pdagent
 OUTQUEUE_DIR=$DATA_DIR/outqueue
 
