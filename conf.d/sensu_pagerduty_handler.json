@@ -1,0 +1,8 @@
+{
+  "handlers": {
+    "pagerduty": {
+      "type": "pipe",
+      "command": "/usr/share/pdagent-integrations/bin/pd-sensu -k YOUR-INTEGRATION-KEY-HERE"
+    }
+  }
+}

@@ -1,0 +1,74 @@
+
+# Sensu Testing
+
+This document shows you how to test the Sensu integration using the public
+Sensu Integration Guide.
+
+1. Configure Sensu using the public Sensu Integration Guide:
+    http://www.pagerduty.com/docs/guides/sensu-integration-guide/
+
+     > For development builds of `pdagent-integrations` package, see
+     > `build-linux/howto.txt` for install instructions.
+    
+2. The easiest way to test that your Sensu integration is working as
+    expected is to write a brief script that prints out a message and exits
+    with status 0 or 1, and then add the script as a check for the
+    Sensu client to run.
+    
+    For instance, the script could look like this:
+
+    ```
+    #!/bin/bash
+    EXITCODE=0
+    if [ $EXITCODE -ne 0 ]; then
+        echo "Server down"
+    else
+        echo "Server up"
+    fi
+    exit $EXITCODE
+    ```
+
+    Save the script as `/etc/sensu/plugins/dummyhostcheck.sh` on the system
+    that runs the Sensu client, and make sure it is executable by running 
+    `chmod 755 /etc/sensu/plugins/dummyhostcheck.sh`.
+
+
+3. Add a check to the configuration on the system that runs the Sensu server
+    and specify "pagerduty" as the handler:
+    ```
+    {
+        "checks": {
+            "host": {
+                "command": "/etc/sensu/plugins/dummyhostcheck.sh",
+                "subscribers": [
+                    "dummy"
+                ],
+                "interval": 10,
+                "standalone": false,
+                "handler": "pagerduty"
+            }
+        }
+    }
+    ```
+
+4. Add the "dummy" subscription to the client configuration, i.e. 
+    ```
+    {    
+        "client": {
+    ...
+            "subscriptions": [
+                ...,"dummy"
+            ],
+    ...
+    }
+    ```
+
+5. You can then trigger an event by setting `EXITCODE=1` in the above
+    script; it will run the script every ten seconds and send an event
+    to PagerDuty with the script's output if the script exits with
+    nonzero status.
+
+For sample client and server configurations, see the Sensu installation
+guide:
+
+https://sensuapp.org/docs/0.26/installation/
