@@ -109,7 +109,8 @@ class NagiosEvent:
         return {
             "PROBLEM": "trigger",
             "ACKNOWLEDGEMENT": "acknowledge",
-            "RECOVERY": "resolve"
+            "RECOVERY": "resolve",
+            "CUSTOM": "trigger"
         }[self._event_type]
 
 def main():
@@ -148,7 +149,7 @@ def build_queue_arg_parser(description):
         dest="event_type",
         required=True,
         help="Event type",
-        choices=["PROBLEM", "ACKNOWLEDGEMENT", "RECOVERY"]
+        choices=["PROBLEM", "ACKNOWLEDGEMENT", "RECOVERY", "CUSTOM"]
         )
     parser.add_argument(
         "-i",
