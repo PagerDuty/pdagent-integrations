@@ -51,7 +51,7 @@ stop_agent
 purge_queue
 
 test_inout() {
-  # What pd-sensu must do: 
+  # What pd-sensu must do:
   #
   # All it needs to do is fold the original JSON into the details property
   # of a new JSON and add:
@@ -66,15 +66,15 @@ test_inout() {
   check=$4
   output=$5
   purge_queue
-  cat test_30_sensu.generic.json |\
+  cat /vagrant/pdagenttestinteg/test_30_sensu.generic.json |\
       sed "s/{{action}}/$action/g;
-              s/{{clientname}}/$client/g; 
+              s/{{clientname}}/$client/g;
               s/{{checkname}}/$check/g;
               s/{{output}}/$output/g"\
-          > ./test_30_sensu.$etype.json 
-  $BIN_PD_SENSU -k DUMMY_SERVICE_KEY < ./test_30_sensu.$etype.json 
+          > ./test_30_sensu.$etype.json
+  $BIN_PD_SENSU -k DUMMY_SERVICE_KEY < ./test_30_sensu.$etype.json
   fix_events
-  sudo python3 -c "
+  sudo python -c "
 import json,sys
 input={
     'details':json.load(open('test_30_sensu.$etype.json','r')),
@@ -83,10 +83,10 @@ input={
     'service_key': 'DUMMY_SERVICE_KEY',
     'event_type': '$etype',
     'client': '',
-    'client_url': '', 
+    'client_url': '',
     'agent': {
-      'queued_at': 'SOME_TIME', 
-      'queued_by': 'pd-sensu', 
+      'queued_at': 'SOME_TIME',
+      'queued_by': 'pd-sensu',
       'agent_id': 'SOME_ID'
     }
 }
@@ -103,9 +103,8 @@ if input != output:
         'Missing expected properties:\\n%s\\n'%str(extra_exp)+
         'Extraneous output properties:\\n%s\\n'%str(extra_out)
     )"
-  rm ./test_30_sensu.$etype.json  
+  rm ./test_30_sensu.$etype.json
 }
 
 test_inout 'trigger' 'create' 'DUMMY_CLIENT' 'DUMMY_CHECK' 'SERVERS ON FIRE'
 test_inout 'resolve' 'resolve' 'DUMMY_CLIENT' 'DUMMY_CHECK' 'SERVERS SMOKIN'
-
