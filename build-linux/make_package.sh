@@ -70,6 +70,10 @@ cp ../bin/* data/usr/share/pdagent-integrations/bin
 echo = FPM!
 _FPM_DEPENDS="--depends pdagent"
 
+if [ "$pkg_type" = "rpm" ]; then
+    _FPM_DEPENDS="$_FPM_DEPENDS --depends python-argparse"
+fi
+
 _SIGN_OPTS=""
 if [ "$pkg_type" = "rpm" ]; then
     _SIGN_OPTS="--rpm-sign"
