@@ -95,8 +95,8 @@ output = json.load(open(
     'r'
 ))
 if input != output:
-    extra_exp={k:input[k] for k in set(input.keys())-set(output.keys())}
-    extra_out={k:output[k] for k in set(output.keys())-set(input.keys())}
+    extra_exp=dict([(k,input[k]) for k in set(input.keys())-set(output.keys())])
+    extra_out=dict([(k,output[k]) for k in set(output.keys())-set(input.keys())])
     raise Exception('Output JSON object differs from expected ($etype);\\n\\n'+
         'Expected: \\n%s\\n'%str(input)+
         'Actual: \\n%s\\n'%str(output)+
