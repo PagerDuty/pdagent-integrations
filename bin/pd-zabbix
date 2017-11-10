@@ -67,6 +67,14 @@ def main():
     # The third argument is the data
     details = _parse_zabbix_body(sys.argv[3])
 
+    # Zabbix issues a "trigger" with a "NOTE: Escalation cancelled" in details if the host,
+    # trigger, or action gets disabled.
+    # https://www.zabbix.com/documentation/3.2/manual/config/notifications/action/escalations
+    # Convert that into a "resolve" to actually resolve the issue in PagerDuty
+    if message_type == "trigger" and "NOTE" in details and "Escalation cancelled" in details["NOTE"]:
+        message_type = "resolve"
+        details["NOTE"] = details["NOTE"] + " (converted from trigger to resolve by pdagent integration)"
+
     # Incident key is created by concatenating trigger id and host name.
     # Remember, incident key is used for de-duping and also to match trigger with resolve messages
     incident_key = "%s-%s" % (details["id"], details["hostname"])
