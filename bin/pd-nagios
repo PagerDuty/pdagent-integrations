@@ -176,7 +176,14 @@ def build_queue_arg_parser(description):
 def parse_fields(fields):
     if fields is None:
         return {}
-    return dict(f.split("=", 1) for f in fields)
+    fields = dict(f.split("=", 1) for f in fields)
+    if 'contexts' in fields and type(fields['contexts']) is str:
+        try:
+            import json 
+            fields['contexts'] = json.loads(fields['contexts'])
+        except ValueError:
+            pass # Ignore/skip doing this if invalid JSON
+    return fields
 
 if __name__ == "__main__":
     try:
