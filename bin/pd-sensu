@@ -112,7 +112,7 @@ class SensuEvent:
         )
 
 def parse_args():
-    description = "Enqueue an event from Nagios to PagerDuty."
+    description = "Enqueue an event from Sensu to PagerDuty."
     parser = argparse.ArgumentParser(description)
     parser.add_argument(
         '-k',
