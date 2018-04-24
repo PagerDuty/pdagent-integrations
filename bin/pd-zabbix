@@ -42,7 +42,19 @@
 # severity:{TRIGGER.SEVERITY}
 #
 def _parse_zabbix_body(body_str):
-    return dict(line.strip().split(':', 1) for line in body_str.strip().split('\n'))
+    body = {}
+    key, val = (None, None)
+    for line in body_str.strip().split('\n'):
+        keyval = line.strip().split(':', 1)
+        if len(keyval) == 2:
+            key, val = keyval
+            body[key] = val
+        elif key is not None:
+            # Treat as continuation of previous line
+            body[key] += keyval[0]
+        else:
+            body[keyval[0]] = keyval[0]
+    return body
 
 # Parse the Zabbix message subject.
 # The subject MUST be one of the following:
