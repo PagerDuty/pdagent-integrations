@@ -102,7 +102,7 @@ $FPM -s dir \
     -t $pkg_type \
     --name "pdagent-integrations" \
     --description "$_DESC" \
-    --version "1.4" \
+    --version "1.5" \
     --architecture all \
     --url "http://www.pagerduty.com" \
     --license 'Open Source' \
