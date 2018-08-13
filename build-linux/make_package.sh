@@ -92,8 +92,8 @@ fi
 _PKG_MAINTAINER="$_PKG_MAINTAINER (PagerDuty, Inc.) <packages@pagerduty.com>"
 
 if [ "$pkg_type" = "rpm" ]; then
-    source /opt/rh/ruby193/enable
-    FPM=/opt/rh/ruby193/root/usr/local/share/gems/gems/fpm-$FPM_VERSION/bin/fpm
+    source /opt/rh/rh-ruby23/enable
+    FPM=/opt/rh/rh-ruby23/root/usr/local/share/gems/gems/fpm-$FPM_VERSION/bin/fpm
 else
     FPM=fpm
 fi
@@ -102,7 +102,7 @@ $FPM -s dir \
     -t $pkg_type \
     --name "pdagent-integrations" \
     --description "$_DESC" \
-    --version "1.4" \
+    --version "1.5" \
     --architecture all \
     --url "http://www.pagerduty.com" \
     --license 'Open Source' \
