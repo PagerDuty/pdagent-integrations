@@ -34,6 +34,7 @@ import argparse
 import sys
 import traceback
 
+
 def log_exception(error, preface="Unexpected error"):
     """Prints user-friendly error message to the pdagent log"""
     from pdagent.pdqueue import logger
@@ -48,7 +49,7 @@ def log_exception(error, preface="Unexpected error"):
 class SensuEvent:
     """Class for enqueueing a Sensu check result as a PD event"""
 
-    def __init__(self, integration_key, check_result, given_incident_key=None): 
+    def __init__(self, integration_key, check_result, api_version="V1", event_map=None, given_incident_key=None): 
         """Constructor
         
         Arguments:
@@ -56,6 +57,8 @@ class SensuEvent:
         :check_result: JSON string containing the result
         :given_incident_key: If specified, a custom incident key for 
             deduplication
+        :api_version: V1 or V2 of Pagerduty API
+        :event_map: Mappings for V2 PD-CEF from check_result
         """
         import json
         self._integration_key = integration_key
@@ -72,6 +75,10 @@ class SensuEvent:
             )
             raise e
         self._details = details
+
+        # Assume v1, set based on argument
+        self._api_version = api_version
+
         # Normalize the event type
         action = details['action']
         event_types = {'resolve':'resolve', 'create':'trigger'}
@@ -79,6 +86,41 @@ class SensuEvent:
             self._event_type = event_types[action]
         else:
             self._event_type = 'trigger'
+
+        # Mappings for v2 api fields
+        # Set default values as empty to suit v1 as well
+        self._event_severity = ""
+        self._event_source = ""
+        self._event_component = ""
+        self._event_group = ""
+        self._event_class = ""
+        if self._api_version == "V2":
+
+            pdcef_default_mappings = {
+                "event_severity": "check.status",
+                "event_source": "client.name",
+                "event_component": "check.name",
+                "event_group": None,
+                "event_class": None
+            }
+
+            for k in pdcef_default_mappings:
+                value = self.__mapped_value_from_details(k, pdcef_default_mappings, details)
+                if value:
+                    setattr(self, "_"+k, value)
+
+            # Override with custom mappings
+            pdcef_custom_mappings = {}
+            if event_map:
+                for a in event_map:
+                    [k, v] = a.split(",")
+                    pdcef_custom_mappings[k] = v
+
+            for k in pdcef_custom_mappings:
+                value = self.__mapped_value_from_details(k, pdcef_custom_mappings, details)
+                if value:
+                    setattr(self, "_"+k, value)
+
         # Set the incident key
         if given_incident_key is not None:
             self._incident_key = given_incident_key
@@ -94,13 +136,55 @@ class SensuEvent:
             details['check']['output']
         )
 
+
+    def __mapped_value_from_details(self, field, mappings, details):
+        # Copy to work with
+        _details = details.copy()
+
+        severity_map = {
+            0: "info",
+            1: "warning",
+            2: "critical",
+            3: "error"
+        }
+        try:
+            value = mappings[field].split(".")
+            # Could use a third party library for dot notation, or implement our own
+            # Just do a simplistic recurse, if any errors we'll fall through to a default
+            for v in value:
+                _details = _details[v]
+            # Event Severity is special. It can't be blank and a Sensu number needs to be mapped to a string
+            if field == "event_severity":
+                if _details not in ["info", "warning", "error", "critical"]:
+                    try:
+                        return severity_map[_details]
+                    except KeyError:
+                        # Default to Critical
+                        return "critical"
+            else:
+                return _details
+        except (KeyError, AttributeError):
+            # Event Severity is special. It can't be blank
+            if field == "event_severity":
+                # Default to Critical
+                return "critical"
+            else:
+                return None
+
+
     def enqueue(self):
         from pdagent.config import load_agent_config
         from pdagent.pdagentutil import queue_event
         agent_config = load_agent_config()
         return queue_event(
             agent_config.get_enqueuer(),
+            self._api_version,
             self._event_type,
+            self._event_severity,
+            self._event_source,
+            self._event_component,
+            self._event_group,
+            self._event_class,
             self._integration_key,
             self._incident_key,
             self._description,
@@ -129,6 +213,24 @@ def parse_args():
         default=None,
         help="Specifies a custom incident key for deduplication"
     )
+    parser.add_argument(
+        '-a',
+        '--api-version',
+        dest='api_version',
+        choices=["V1", "V2"],
+        required=False,
+        default="V1",
+        help="API version to target (default is V1 if not set)"
+    )
+    # Mappings for v2 api items
+    parser.add_argument(
+        '-m',
+        '--event-map',
+        dest="event_map",
+        action="append",
+        required=False,
+        help="API version 2 mappings. Specify multiple times as required for event_severity, event_source, event_component, event_group and event_class. E.g: `--map event_source,client.name`"
+    )
     return parser.parse_args()
 
 def main():
@@ -137,6 +239,8 @@ def main():
     pdevent = SensuEvent(
         args.integration_key,
         stdin,
+        args.api_version,
+        args.event_map,
         given_incident_key=args.incident_key
     )
     
