@@ -44,12 +44,14 @@ class NagiosEvent:
             )
         }
 
-    def __init__(self, service_key, event_type, notification_type, details, incident_key=None):
+    def __init__(self, service_key, event_type, notification_type, details, incident_key=None, client="", client_url=""):
         self._service_key = service_key
         self._event_type = event_type
         self._notification_type = notification_type
         self._details = dict(details.items() + [("pd_nagios_object", self._notification_type)])
         self._given_incident_key = incident_key
+        self._client =  client
+        self._client_url = client_url
 
     def enqueue(self):
         from pdagent.config import load_agent_config
@@ -62,8 +64,8 @@ class NagiosEvent:
             self._service_key,
             self._incident_key(),
             self._event_description(),
-            "",
-            "",
+            self._client,
+            self._client_url,
             self._details,
             agent_config.get_agent_id(),
             "pd-nagios"
@@ -123,7 +125,9 @@ def main():
         args.event_type,
         args.notification_type,
         details,
-        args.incident_key
+        args.incident_key,
+        args.client,
+        args.client_url
         )
 
     try:
@@ -170,6 +174,20 @@ def build_queue_arg_parser(description):
         required=True,
         help="Nagios notification type (host or service)",
         choices=["service", "host"]
+        )
+    parser.add_argument(
+        "-c",
+        "--client",
+        dest="client",
+        help="Client Name",
+        default=""
+        )
+    parser.add_argument(
+        "-u",
+        "--client-url",
+        dest="client_url",
+        help="Client URL",
+        default=""
         )
     return parser
 
