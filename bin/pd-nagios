@@ -116,7 +116,9 @@ def main():
     description = "Enqueue an event from Nagios to PagerDuty."
     parser = build_queue_arg_parser(description)
     args = parser.parse_args()
+    # This order means that -e fields will overwrite -f fields!
     details = parse_fields(args.fields)
+    parse_env_fields(details, args.env_fields)
 
     event = NagiosEvent(
         args.service_key,
@@ -164,6 +166,13 @@ def build_queue_arg_parser(description):
         help="Add given KEY=VALUE pair to the event details"
         )
     parser.add_argument(
+        "-e",
+        "--env-field",
+        action="append",
+        dest="env_fields",
+        help="Add given KEY and matching NAGIOS_KEY or ICINGA_KEY environment value to the event details"
+        )
+    parser.add_argument(
         "-n",
         "--notification-type",
         dest="notification_type",
@@ -177,6 +186,13 @@ def parse_fields(fields):
     if fields is None:
         return {}
     return dict(f.split("=", 1) for f in fields)
+
+def parse_env_fields(details, env_fields):
+    if env_fields is None:
+        return
+    from os import environ
+    for f in env_fields:
+        details[f] = environ.get("NAGIOS_%s" % f) or environ.get("ICINGA_%s" % f) or ""
 
 if __name__ == "__main__":
     try:
