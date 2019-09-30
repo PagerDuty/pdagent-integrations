@@ -42,9 +42,26 @@
 # severity:{TRIGGER.SEVERITY}
 #
 def _parse_zabbix_body(body_str):
+    return _parse_zabbix_body_multiline_value(body_str, '')
+
+
+# Parse the Zabbix message body considering multiline value such as {TRIGGER.DESCRIPTION}.
+# When eor_sep_prefix = '@#@', the body MUST be in this format :
+#
+# name:{TRIGGER.NAME}@#@
+# id:{TRIGGER.ID}@#@
+# status:{TRIGGER.STATUS}@#@
+# hostname:{HOSTNAME}@#@
+# ip:{IPADDRESS}@#@
+# value:{TRIGGER.VALUE}@#@
+# event_id:{EVENT.ID}@#@
+# zabbix_trigger_description:{TRIGGER.DESCRIPTION}@#@
+# severity:{TRIGGER.SEVERITY}
+#
+def _parse_zabbix_body_multiline_value(body_str, eor_sep_prefix):
     body = {}
     key, val = (None, None)
-    for line in body_str.strip().split('\n'):
+    for line in body_str.strip().replace('\r\n', '\n').replace('\r','\n').split(eor_sep_prefix+'\n'):
         keyval = line.strip().split(':', 1)
         if len(keyval) == 2:
             key, val = keyval
@@ -55,6 +72,7 @@ def _parse_zabbix_body(body_str):
         else:
             body[keyval[0]] = keyval[0]
     return body
+
 
 # Parse the Zabbix message subject.
 # The subject MUST be one of the following:
@@ -77,7 +95,10 @@ def main():
     message_type = _parse_zabbix_subject(sys.argv[2])
 
     # The third argument is the data
-    details = _parse_zabbix_body(sys.argv[3])
+    # The fourth optional argument is the separtor newline-prefix string for a new record right.
+    #   The default fourth argument as "empty string('')" means the natural backward compatiblity of this integration.
+    eor_sep_prefix = (sys.argv[4] if len(sys.argv) > 4 else '')
+    details = _parse_zabbix_body_multiline_value(sys.argv[3], eor_sep_prefix)
 
     # Zabbix issues a "trigger" with a "NOTE: Escalation cancelled" in details if the host,
     # trigger, or action gets disabled.
