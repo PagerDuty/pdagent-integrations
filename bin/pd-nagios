@@ -70,6 +70,7 @@ class NagiosEvent:
             )
 
     def _event_description(self):
+        from pdagent.constants import MAX_DESCRIPTION_LEN
         if self._notification_type == "service":
             fields = [NagiosEvent.SERVICE_DESCRIPTION,
                 NagiosEvent.SERVICE_STATE,
@@ -81,7 +82,7 @@ class NagiosEvent:
             return None
 
         pairs = ["{0}={1}".format(field, self._details[field]) for field in fields]
-        return "; ".join(pairs)
+        return ("; ".join(pairs))[:MAX_DESCRIPTION_LEN]
 
     def _incident_key(self):
         if self._given_incident_key is None:

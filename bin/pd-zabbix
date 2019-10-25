@@ -69,6 +69,7 @@ def main():
     import sys
     from pdagent.pdagentutil import queue_event
     from pdagent.config import load_agent_config
+    from pdagent.constants import MAX_DESCRIPTION_LEN
 
     # The first argument is the service key
     service_key = sys.argv[1]
@@ -92,7 +93,7 @@ def main():
     incident_key = "%s-%s" % (details["id"], details["hostname"])
 
     # The description that is rendered in PagerDuty and also sent as SMS and phone alert
-    description = "%s : %s for %s" % (details["name"], details["status"], details["hostname"])
+    description = ("%s : %s for %s" % (details["name"], details["status"], details["hostname"]))[:MAX_DESCRIPTION_LEN]
 
     agent_config = load_agent_config()
     queue_event(

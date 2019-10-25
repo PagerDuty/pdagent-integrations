@@ -58,6 +58,7 @@ class SensuEvent:
             deduplication
         """
         import json
+        from pdagent.constants import MAX_DESCRIPTION_LEN
         self._integration_key = integration_key
         # Parse the body. It should be in the form of a Sensu "check result"
         # https://sensuapp.org/docs/latest/reference/checks.html#check-results 
@@ -89,10 +90,10 @@ class SensuEvent:
             )
         else:
             self._incident_key = details['id']
-        self._description = '%s : %s'%(
+        self._description = ('%s : %s'%(
             self._incident_key,
             details['check']['output']
-        )
+        ))[:MAX_DESCRIPTION_LEN]
 
     def enqueue(self):
         from pdagent.config import load_agent_config
