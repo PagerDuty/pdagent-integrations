@@ -48,7 +48,7 @@ def log_exception(error, preface="Unexpected error"):
 class SensuEvent:
     """Class for enqueueing a Sensu check result as a PD event"""
 
-    def __init__(self, integration_key, check_result, given_incident_key=None): 
+    def __init__(self, integration_key, check_result, given_incident_key=None, truncate=None):
         """Constructor
         
         Arguments:
@@ -91,7 +91,7 @@ class SensuEvent:
             self._incident_key = details['id']
         self._description = '%s : %s'%(
             self._incident_key,
-            details['check']['output']
+            details['check']['output'][:truncate]
         )
 
     def enqueue(self):
@@ -129,6 +129,16 @@ def parse_args():
         default=None,
         help="Specifies a custom incident key for deduplication"
     )
+    parser.add_argument(
+        '-t',
+        '--truncate',
+        dest='truncate',
+        required=False,
+        default=None,
+        type=int,
+        help="Truncates check output in description field to desired character length"
+    )
+
     return parser.parse_args()
 
 def main():
@@ -137,7 +147,8 @@ def main():
     pdevent = SensuEvent(
         args.integration_key,
         stdin,
-        given_incident_key=args.incident_key
+        given_incident_key=args.incident_key,
+        truncate=args.truncate
     )
     
     try:
