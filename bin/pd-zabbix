@@ -90,7 +90,8 @@ def main():
     # Incident key is created by concatenating trigger id and host name.
     # Remember, incident key is used for de-duping and also to match trigger with resolve messages
     incident_key = "%s-%s" % (details["id"], details["hostname"])
-
+    if "incident_key" in details and details["incident_key"]:
+        incident_key = details["incident_key"]
     # The description that is rendered in PagerDuty and also sent as SMS and phone alert
     description = "%s : %s for %s" % (details["name"], details["status"], details["hostname"])
 
