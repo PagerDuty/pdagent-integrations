@@ -43,11 +43,11 @@ def create_repo(target, source, env):
     """Create installable local repository for supported operating systems."""
     gpg_home = env.get("gpg_home")
     if not gpg_home:
-        print (
+        print((
             "No gpg-home was provided!\n" +
             "If required, run this command to create a new gpg-home:\n" +
             "gpg --homedir=/desired/path --gen-key"
-            )
+        ))
         return 1
     else:
         gpg_home = gpg_home[0]
@@ -57,7 +57,7 @@ def create_repo(target, source, env):
 
     # copy gpg-home to VM-accessible location.
     if subprocess.call(["cp", "-r", gpg_home, tmp_dir]):
-        print "Cannot copy %s to %s" % (gpg_home, tmp_dir)
+        print("Cannot copy %s to %s" % (gpg_home, tmp_dir))
         return 1
     else:
         # ... and /vagrant-ify the new gpg-home path.
@@ -65,7 +65,7 @@ def create_repo(target, source, env):
             remote_project_root,
             tmp_dir,
             os.path.basename(gpg_home)
-            )
+        )
 
     virts = env.get("virts")
     remote_target_dir = os.path.join(remote_project_root, target_dir)
@@ -77,7 +77,7 @@ def create_repo(target, source, env):
             "deb",
             remote_gpg_home,
             remote_target_dir
-            )
+        )
 
     if virts is None or [v for v in virts if v.find("centos") != -1]:
         ret_code += _create_repo(
@@ -85,7 +85,7 @@ def create_repo(target, source, env):
             "rpm",
             remote_gpg_home,
             remote_target_dir
-            )
+        )
 
     if not ret_code:
         # export public key into a temporary location to help installation.
@@ -119,7 +119,7 @@ def run_integration_tests(target, source, env):
 def start_virtual_boxes(target, source, env):
     virts = env.get("virts")
     if not virts:
-        virts =  _get_minimal_virt_names()
+        virts = _get_minimal_virt_names()
     start_cmd = ["vagrant", "up"]
     start_cmd.extend(virts)
     return subprocess.call(start_cmd)
@@ -136,9 +136,9 @@ def destroy_virtual_boxes(target, source, env):
     if not force:
         msg = "You must manually confirm deletion of VMs."
         h_border = "-" * len(msg)
-        print h_border
-        print msg
-        print h_border
+        print(h_border)
+        print(msg)
+        print(h_border)
     else:
         destroy_cmd.append("-f")
     destroy_cmd.extend(virts)
@@ -168,16 +168,16 @@ def sync_to_remote_repo(target, source, env):
     for pkg_type in _PACKAGE_TYPES:
         pkg_root = os.path.join(target_dir, pkg_type)
         if not (os.path.isdir(pkg_root) and os.listdir(pkg_root)):
-            print "No content to sync from: %s" % pkg_root
-            print "Sync-to-remote was NOT STARTED."
+            print("No content to sync from: %s" % pkg_root)
+            print("Sync-to-remote was NOT STARTED.")
             return 1
 
     pkg_types_str = "{%s}" % ",".join(_PACKAGE_TYPES)
-    print "This will copy <project_root>/%s/%s to %s/%s" % \
-        (target_dir, pkg_types_str, repo_root, pkg_types_str)
-    print "All existing content in %s/%s will remain as is." % \
-        (repo_root, pkg_types_str)
-    if raw_input("Are you sure? [y/N] ").lower() not in ["y", "yes"]:
+    print("This will copy <project_root>/%s/%s to %s/%s" %
+          (target_dir, pkg_types_str, repo_root, pkg_types_str))
+    print("All existing content in %s/%s will remain as is." %
+          (repo_root, pkg_types_str))
+    if input("Are you sure? [y/N] ").lower() not in ["y", "yes"]:
         return 1
 
     if repo_root.startswith("s3://"):
@@ -187,7 +187,7 @@ def sync_to_remote_repo(target, source, env):
 def _create_repo(virt, virt_type, gpg_home, local_repo_root):
     # Assuming that all requisite packages are available on virt.
     # (see build-linux/howto.txt)
-    print "\nCreating local %s repository..." % virt_type
+    print("\nCreating local %s repository..." % virt_type)
     make_file = os.path.join(
         remote_project_root,
         build_linux_dir,
@@ -195,23 +195,23 @@ def _create_repo(virt, virt_type, gpg_home, local_repo_root):
     return _run_on_virts(
         "sh %s %s %s" % (make_file, gpg_home, local_repo_root),
         [virt]
-        )
+    )
 
 
 def _pre_sync_checks(env):
     repo_root = env.get("repo_root")
     if not repo_root:
-        print "No repo-root was provided!"
+        print("No repo-root was provided!")
         return None
     else:
         repo_root = repo_root[0]
 
     if repo_root.startswith("s3://"):
         if subprocess.call(["which", "s3cmd"]):
-            print "No s3cmd found!\nInstall from http://s3tools.org/download"
+            print("No s3cmd found!\nInstall from http://s3tools.org/download")
             return None
     else:
-        print "Unrecognized remote repository type for location: " + repo_root
+        print("Unrecognized remote repository type for location: " + repo_root)
         return None
 
     return repo_root
@@ -222,7 +222,7 @@ def _sync_s3_package_repo(
         local_root,
         pkg_types=_PACKAGE_TYPES,
         outbound=False
-        ):
+):
     r = 0
     for pkg_type in pkg_types:
         # note that both src and dest locations need to end with '/'
@@ -232,22 +232,22 @@ def _sync_s3_package_repo(
         else:
             src = "%s/%s/" % (s3_root, pkg_type)
             dest = os.path.join(local_root, pkg_type, "")
-        print "Syncing %s -> %s..." % (src, dest)
+        print("Syncing %s -> %s..." % (src, dest))
         r += subprocess.call(["s3cmd", "sync", src, dest])
     return r
 
 
 def _generate_remote_test_runner_file(
-    source_paths,
-    test_filename_matcher,
-    executable=sys.executable,
-    pre_cmds=None):
+        source_paths,
+        test_filename_matcher,
+        executable=sys.executable,
+        pre_cmds=None):
 
     env.Execute(Mkdir(tmp_dir))
     test_runner_file = os.path.join(tmp_dir, "run_tests")
 
-    test_files = _get_file_paths_recursive(source_paths, test_filename_matcher)
-    test_files.sort()
+    test_files = sorted(_get_file_paths_recursive(
+        source_paths, test_filename_matcher))
     # these are under the remote project root dir on virtual boxes
     test_run_paths = [os.path.join(remote_project_root, t) for t in test_files]
 
@@ -322,7 +322,7 @@ def _run_on_virts(remote_command, virts=None):
         virts = _get_minimal_virt_names(running=True)
     for virt in virts:
         command = ["vagrant", "ssh", virt, "-c", remote_command]
-        print "Running %s" % command
+        print("Running %s" % command)
         exit_code += subprocess.call(command)
     return exit_code
 
@@ -383,7 +383,7 @@ start_virts_task = env.Command(
     None,
     env.Action(start_virtual_boxes, "\n--- Starting virtual boxes"),
     virts=_get_arg_values("virt")
-    )
+)
 
 destroy_virts_task = env.Command(
     "destroy-virt",
@@ -391,7 +391,7 @@ destroy_virts_task = env.Command(
     env.Action(destroy_virtual_boxes, "\n--- Destroying virtual boxes"),
     virts=_get_arg_values("virt"),
     force=_get_arg_values("force-destroy")  # e.g. force-destroy=true
-    )
+)
 
 create_repo_task = env.Command(
     "local-repo",
@@ -399,7 +399,7 @@ create_repo_task = env.Command(
     env.Action(create_repo, "\n--- Creating installable local repository"),
     virts=_get_arg_values("virt"),
     gpg_home=_get_arg_values("gpg-home")
-    )
+)
 env.Requires(create_repo_task, [start_virts_task])
 
 integration_test_task = env.Command(
@@ -408,10 +408,10 @@ integration_test_task = env.Command(
     env.Action(
         run_integration_tests,
         "\n--- Running integration tests on virtual boxes"
-        ),
+    ),
     virts=_get_arg_values("virt"),
     upgrade_from=_get_arg_values("upgrade-from")
-    )
+)
 env.Requires(integration_test_task, [start_virts_task])
 
 sync_from_remote_repo_task = env.Command(
@@ -420,9 +420,9 @@ sync_from_remote_repo_task = env.Command(
     env.Action(
         sync_from_remote_repo,
         "\n--- Syncing packages from remote package repository"
-        ),
+    ),
     repo_root=_get_arg_values("repo-root")
-    )
+)
 
 sync_to_remote_repo_task = env.Command(
     "sync-to-remote-repo",
@@ -430,9 +430,9 @@ sync_to_remote_repo_task = env.Command(
     env.Action(
         sync_to_remote_repo,
         "\n--- Syncing packages to remote package repository"
-        ),
+    ),
     repo_root=_get_arg_values("repo-root")
-    )
+)
 
 # specify directories to be cleaned up for various targets
 env.Clean([integration_test_task], tmp_dir)
@@ -441,17 +441,17 @@ env.Clean([create_repo_task], target_dir)
 build_task = env.Alias(
     "build",
     [create_repo_task, integration_test_task]
-    )
+)
 publish_task = env.Alias(
     "publish",
     [
-    destroy_virts_task,
-    sync_from_remote_repo_task,
-    create_repo_task,
-    integration_test_task,
-    sync_to_remote_repo_task
+        destroy_virts_task,
+        sync_from_remote_repo_task,
+        create_repo_task,
+        integration_test_task,
+        sync_to_remote_repo_task
     ]
-    )
+)
 
 # task to run if no command is specified.
 if env.GetOption("clean"):
