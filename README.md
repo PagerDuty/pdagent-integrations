@@ -16,7 +16,7 @@ It currently include support for:
 ## Developing
 
 See the Agent project at https://github.com/PagerDuty/pdagent for setup
-instructions for Pydev, IntelliJ IDEA, Scons and Vagrant.
+instructions for Pydev, IntelliJ IDEA, Docker.
 
 See the file `zabbix-testing.txt` for Zabbix build and test instructions,
 `nagios-testing.txt` for Nagios build and test instructions, and the file
@@ -30,9 +30,9 @@ Follow the same steps as in the Agent project. (there is no `SVC_KEY` in
 
 ### Zabbix Testing
 
-The scons integration test for Zabbix only runs standalone tests for the
-`pd-zabbix` command line script. You should also test actual Zabbix integration
-using the public Zabbix Integration Guide.
+The integration test for Zabbix only runs standalone tests for the `pd-zabbix`
+command line script. You should also test actual Zabbix integration using the
+public Zabbix Integration Guide.
 
 For details, see `zabbix-testing.txt`.
 
