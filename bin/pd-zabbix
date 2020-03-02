@@ -41,6 +41,8 @@
 # event_id:{EVENT.ID}
 # severity:{TRIGGER.SEVERITY}
 #
+
+
 def _parse_zabbix_body(body_str):
     body = {}
     key, val = (None, None)
@@ -62,8 +64,11 @@ def _parse_zabbix_body(body_str):
 # trigger
 # resolve
 #
+
+
 def _parse_zabbix_subject(subject_str):
     return subject_str
+
 
 def main():
     import sys
@@ -85,20 +90,23 @@ def main():
     # Convert that into a "resolve" to actually resolve the issue in PagerDuty
     if message_type == "trigger" and "NOTE" in details and "Escalation cancelled" in details["NOTE"]:
         message_type = "resolve"
-        details["NOTE"] = details["NOTE"] + " (converted from trigger to resolve by pdagent integration)"
+        details["NOTE"] = details["NOTE"] + \
+            " (converted from trigger to resolve by pdagent integration)"
 
     # Incident key is created by concatenating trigger id and host name.
     # Remember, incident key is used for de-duping and also to match trigger with resolve messages
     incident_key = "%s-%s" % (details["id"], details["hostname"])
 
     # The description that is rendered in PagerDuty and also sent as SMS and phone alert
-    description = "%s : %s for %s" % (details["name"], details["status"], details["hostname"])
+    description = "%s : %s for %s" % (
+        details["name"], details["status"], details["hostname"])
 
     agent_config = load_agent_config()
     queue_event(
         agent_config.get_enqueuer(),
         message_type, service_key, incident_key, description, "", "", details,
         agent_config.get_agent_id(), "pd-zabbix",)
+
 
 if __name__ == "__main__":
     try:

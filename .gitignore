@@ -8,10 +8,10 @@
 
 /dist
 /target/
-
-/.vagrant/
+/tmp/
 
 /build-linux/data/
 /build-linux/gnupg/
+/build-linux/gpg-deb/
+/build-linux/gpg-rpm/
 /build-linux/target/
-
