@@ -30,7 +30,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 #
 
-import argparse
+import pdagent.thirdparty.argparse
 import sys
 import traceback
 
