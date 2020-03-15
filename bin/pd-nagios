@@ -38,10 +38,8 @@ class NagiosEvent:
     SERVICE_STATE = "SERVICESTATE"
 
     REQUIRED_FIELDS = {
-        "host": {HOST_NAME, HOST_STATE},
-        "service": {HOST_NAME,
-                    SERVICE_DESCRIPTION,
-                    SERVICE_STATE}
+        "host": set([HOST_NAME, HOST_STATE]),
+        "service": set([HOST_NAME, SERVICE_DESCRIPTION, SERVICE_STATE])
     }
 
     def __init__(self, service_key, event_type, notification_type, details, incident_key=None):
