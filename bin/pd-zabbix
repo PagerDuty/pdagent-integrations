@@ -101,10 +101,16 @@ def main():
     description = "%s : %s for %s" % (
         details["name"], details["status"], details["hostname"])
 
+    # Client URL is an optional property "url" in the Zabbix message
+    client = ""
+    url = details.get('url', '')
+    if url:
+        client = "Zabbix"
+
     agent_config = load_agent_config()
     queue_event(
         agent_config.get_enqueuer(),
-        message_type, service_key, incident_key, description, "", "", details,
+        message_type, service_key, incident_key, description, client, url, details,
         agent_config.get_agent_id(), "pd-zabbix",)
 
 
